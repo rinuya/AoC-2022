@@ -60,16 +60,8 @@ void assign_ranges(char* str, range* first, range* second) {
     }
 }
 
-void check_if_fully_contains (range* first, range* second, int* counter) {
-    if (first->min < second->min) {
-        if (first->max >= second->max) {
-            *counter += 1;
-        }
-    } else if (second->min < first->min) {
-        if (second->max >= first->max) {
-            *counter += 1;
-        }
-    } else if (second->min = first->min) {
+void check_if_overlaps (range* first, range* second, int* counter) {
+    if ((first->min <= second->min && first->max >= second->min) || (first->min <= second->max && first->max >= second->max) || (second->min <= first->min && second->max >= first->min) || (second->max <= first->max && second->max >= first->min)) {
         *counter += 1;
     }
 }
@@ -85,9 +77,9 @@ int main () {
 
         fgets(line, 13, fp);
         if (feof( fp )) break;
-        
+
         assign_ranges(line, &first, &second);
-        check_if_fully_contains(&first, &second, &result);
+        check_if_overlaps(&first, &second, &result);
     }
 
     if (feof(fp)) {
