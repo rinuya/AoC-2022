@@ -6,11 +6,14 @@ int main () {
     int result = 0;
     FILE* fp = fopen("input.txt", "r");
     fgets(str, 4100, fp);
-    for (int i = 3; i < strlen(str); i++){
-        char buffer[] = {str[i], str[i-1], str[i-2], str[i-3]};
+    for (int i = 13; i < strlen(str); i++){
+        char buffer[16];
+        for (int start = 0; start < 14; start++){
+            buffer[start] = str[i-start];
+        }
         int duplicates = 0;
-        for (int j = 0; j < 4; j++) {
-            for (int k = 0; k < 4; k++) {
+        for (int j = 0; j < 14; j++) {
+            for (int k = 0; k < 14; k++) {
                 if (j != k){
                     if (buffer[j] == buffer[k]) {
                         duplicates++;
@@ -23,7 +26,6 @@ int main () {
             break;
         }
     }
-
     printf("The result is %d", result);
     fclose(fp);
     return 0;
