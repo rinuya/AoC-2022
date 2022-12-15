@@ -7,7 +7,8 @@ int main (void) {
     FILE* fp = fopen("input.txt", "r");
     int grid[GRID_DIM][GRID_DIM];
     int line_counter = 0;
-    int visible_counter = 0;
+    int result = 0;
+    //assign grid
     for ( ;; ) {
         char line[250];
         fgets(line, 250, fp);
@@ -17,49 +18,65 @@ int main (void) {
         }
         line_counter++;
     }
-    //add outside ones
-    visible_counter += (GRID_DIM*2 + (GRID_DIM-2)*2);
-    //check if visible
+    //check score
     for (int row = 1; row < GRID_DIM - 1; row++) {
         for (int col = 1; col < GRID_DIM -1; col++) {
             int curr_element = grid[row][col];
             int visible[4] = { 1, 1, 1, 1};
-            int vis_counter = 0;
+            int vis_counter = 1;
             //left
-            for (int left = 0; left < col; left++) {
-                if (grid[row][left] >= curr_element) {
-                    visible[0] = 0;
+            if (grid[row][col-1] < curr_element){
+                for (int left = col - 2; left >= 0; left--) {
+                    if (grid[row][left] < curr_element) {
+                        visible[0] = visible[0]+1;
+                    } else {
+                        visible[0] = visible[0]+1;
+                        break;
+                    }
                 }
             }
             //right
-            for (int right = GRID_DIM-1; right > col; right--) {
-                if (grid[row][right] >= curr_element) {
-                    visible[1] = 0;
+            if (grid[row][col+1] < curr_element){
+                for (int right = col + 2; right < GRID_DIM; right++) {
+                    if (grid[row][right] < curr_element) {
+                        visible[1] = visible[1]+1;
+                    } else {
+                        visible[1] = visible[1]+1;
+                        break;
+                    }
                 }
             }
             //top
-            for (int top = 0; top < row; top++) {
-                if (grid[top][col] >= curr_element) {
-                    visible[2] = 0;
+            if (grid[row-1][col] < curr_element){
+                for (int top = row - 2; top >= 0; top--) {
+                    if (grid[top][col] < curr_element) {
+                        visible[2] = visible[2]+1;
+                    } else {
+                        visible[2] = visible[2]+1;
+                        break;
+                    }
                 }
             }
             //bottom
-            for (int bot = GRID_DIM-1; bot > row; bot--) {
-                if (grid[bot][col] >= curr_element) {
-                    visible[3] = 0;
+            if (grid[row+1][col] < curr_element){
+                for (int bot = row + 2; bot < GRID_DIM; bot++) {
+                    if (grid[bot][col] < curr_element) {
+                        visible[3] = visible[3]+1;
+                    } else {
+                        visible[3] = visible[3]+1;
+                        break;
+                    }
                 }
             }
-            for (int c = 0; c < 4; c++){
-                if (visible[c] == 1){
-                    vis_counter = 1;
-                }
+            for (int c = 0; c < 4; c++){ 
+                vis_counter = vis_counter * visible[c];
             }
-            visible_counter += vis_counter;
+            if (vis_counter > result){
+                result = vis_counter;
+            };
         }
     }
-
-
-    printf("got thru, result : %d", visible_counter);
+    printf("Result: %d", result);
 
     return 0;
 }
