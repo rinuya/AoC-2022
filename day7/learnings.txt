@@ -1,0 +1,15 @@
+#Notes:
+Tree-Nodes need to have following elements 
+Directories:
+1.:parent    pointer     => Every element has that, If null, you are in / (root)
+2.:name      char   => Identifying name
+3.memory     int         => file has static memory, parents of file have ... either (NULL) or sum of child-memory
+4.children   Node*[]     => Array of pointers to child elements
+5.top        int         => Top of children array
+write function to add elements to nodes, write function to move in tree (change active element)
+
+
+#Learning: 
+strdup allocates memory and copies string. use this to copy a string to a 
+memory allocated struct, otherwise it will use the same address and therefore each 
+struct will use the same string as their attribute "name"
