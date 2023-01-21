@@ -46,13 +46,14 @@ void dequeue(q_el* head) {
 int main () {
     FILE* fp = fopen("input.txt", "r");
     Point* map[BUFFSIZE][BUFFSIZE];
-    int start_row; int start_col; int row_counter = 0;
-
+    int row_len = 0; int col_len = 0;
+    q_el starting_values_head;
     for ( ;; ) {
         char line[120];
         fgets(line, 120, fp);
         if (feof( fp )) break;
 
+        col_len = strlen(line) -1;
         for (int i = 0; i <= strlen(line); i++) {
             if (line[i] == '\n') { 
                 break; 
@@ -61,54 +62,70 @@ int main () {
                 Point* p;
                 p = (Point*)malloc(sizeof(Point));
                 p->letter[0] = line[i];
-                p->row = row_counter;
+                p->row = row_len;
                 p->col = i;
                 p->dist = -1;
                 p->visited = -1;
 
-                if (line[i] == 'S') {
+                if (line[i] == 'S' || line[i] == 'a') {
                     p->value = 1;
-                    start_row = row_counter;
-                    start_col = i;
+                    enqueue(&starting_values_head, p);
                 } else if (line[i] == 'E') {
                     p->value = 26;
                 } else {
                     p->value = (int)(line[i]) - 96;
                 }
-                map[row_counter][i] = p;
+                map[row_len][i] = p;
             }
         }
-        row_counter++;
+        row_len++;
     }
     fclose(fp);
 
-    size_t size = sizeof(map[0]);
-    q_el head = { .item = map[start_row][start_col], .next = NULL};
-    head.item->visited = 1;
-    head.item->dist = 0;
+    int solution = BUFFSIZE * BUFFSIZE;
 
-    while (head.item != NULL) {
-        Point* current = head.item;
-        dequeue(&head);
-        if (current->letter[0] == 'E') {
-            printf("Distance is %d \n", current->dist);
-            break;
-        } else {
-            Point* point_arr[4]; 
-            current->col - 1 >= 0   ? point_arr[0]  = map[current->row][current->col-1] : NULL; // left
-            current->col + 1 < size ? point_arr[1]  = map[current->row][current->col+1] : NULL; // right
-            current->row - 1 >= 0   ? point_arr[2]  = map[current->row-1][current->col] : NULL; // top
-            current->row + 1 < size ? point_arr[3]  = map[current->row+1][current->col] : NULL; // bottom
+    while (starting_values_head.item != NULL) {
+        //clear grid
+        for (int row = 0; row < row_len; row++) {
+            for (int col = 0; col < col_len; col++) {
+                map[row][col]->dist = -1;
+                map[row][col]->visited = -1;
+            }
+        }
+        //add Point to queue
+        q_el head = { .item = starting_values_head.item, .next = NULL};
+        head.item->visited = 1;
+        head.item->dist = 0;
+        dequeue(&starting_values_head);
+        // run BFS search
+        while (head.item != NULL) {
+            Point* current = head.item;
+            dequeue(&head);
 
-            for (int i = 0; i < 4; i++) {
-                if (point_arr[i] != NULL && point_arr[i]->visited != 1 && point_arr[i]->value - current->value <= 1) {
-                    if (point_arr[i]->dist == -1) {
-                        point_arr[i]->dist = current->dist +1;
+            if (current->letter[0] == 'E') {
+                if (current->dist < solution) {
+                    solution = current->dist;
+                }
+                break;
+            } else {
+                Point* point_arr[4]; 
+                current->col - 1 >= 0   ? point_arr[0]  = map[current->row][current->col-1] : NULL; // left
+                current->col + 1 < col_len ? point_arr[1]  = map[current->row][current->col+1] : NULL; // right
+                current->row - 1 >= 0   ? point_arr[2]  = map[current->row-1][current->col] : NULL; // top
+                current->row + 1 < row_len ? point_arr[3]  = map[current->row+1][current->col] : NULL; // bottom
+
+                for (int i = 0; i < 4; i++) {
+                    if (point_arr[i] != NULL && point_arr[i]->visited != 1 && point_arr[i]->value - current->value <= 1) {
+                        if (point_arr[i]->dist == -1) {
+                            point_arr[i]->dist = current->dist +1;
+                        }
+                        point_arr[i]->visited = 1;
+                        enqueue(&head, point_arr[i]);
                     }
-                    point_arr[i]->visited = 1;
-                    enqueue(&head, point_arr[i]);
                 }
             }
         }
     }
+    printf("Solution: %d", solution);
 }
+
